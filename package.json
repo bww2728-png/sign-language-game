@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && node scripts/inject-sw-precache.mjs",
     "start": "vite preview --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit",

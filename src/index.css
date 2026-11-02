@@ -2770,3 +2770,21 @@ button:focus-visible {
     font-size: 9px;
   }
 }
+
+/* Standalone app on iOS: use the real dynamic viewport height and keep content
+   clear of the notch, home indicator and rounded corners. */
+@supports (height: 100dvh) {
+  body,
+  .sign-game {
+    min-height: 100dvh;
+  }
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .sign-game {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+}

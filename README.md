@@ -28,6 +28,24 @@ Every push to `main` runs the project checks, builds `dist`, and deploys the
 static site through GitHub Actions. The workflow can also be started manually
 from the repository's Actions tab.
 
+## Installing on iPhone
+
+The build is a progressive web app, so it can be installed on an iPhone home
+screen without an App Store release:
+
+1. Open the GitHub Pages URL in **Safari** (Chrome and Firefox on iOS cannot
+   install it).
+2. Tap the **Share** button, then **Add to Home Screen**.
+3. Launch it from the home screen. It runs full screen, keeps its own icon, and
+   works offline after the first load.
+
+The service worker precaches the app shell (HTML, bundles, icons, sign images).
+The large MediaPipe files (`public/mediapipe/wasm/*.wasm`,
+`public/models/hand_landmarker.task`) are cached on first use instead, so camera
+recognition is available offline only after the camera has been opened once
+while online. `scripts/inject-sw-precache.mjs` fills in the precache list after
+every `vite build`.
+
 ## Structure
 
 ```text
