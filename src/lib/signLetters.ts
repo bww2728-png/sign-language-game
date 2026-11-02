@@ -44,8 +44,7 @@ export const signLetters: SignLetter[] = [
     letter: "ج",
     nameAr: "الجيم",
     difficulty: "easy",
-    descriptionAr:
-      "اثنِ الأصابع إلى الداخل واعبر بالإبهام قطريًا نحو أعلى الكف.",
+    descriptionAr: "اثنِ الأصابع إلى الداخل واعبر بالإبهام قطريًا نحو أعلى الكف.",
     exampleAr: "جمل",
     asset: "/signs/sign-ar-jeem.webp",
   },
@@ -77,17 +76,31 @@ export const signLetters: SignLetter[] = [
     letter: "ذ",
     nameAr: "الذال",
     difficulty: "medium",
-    descriptionAr:
-      "اجعل السبابة والوسطى متوازيتين فوق إبهام منحني مع فراغ واضح.",
+    descriptionAr: "اجعل السبابة والوسطى متوازيتين فوق إبهام منحني مع فراغ واضح.",
     exampleAr: "ذهب",
     asset: "/signs/sign-ar-dhaal.webp",
+  },
+  {
+    letter: "ر",
+    nameAr: "الراء",
+    difficulty: "medium",
+    descriptionAr: "ارفع السبابة مع ثنيها قليلًا، واجعل بقية الأصابع مطوية.",
+    exampleAr: "ربيع",
+    asset: "/signs/sign-ar-ra.webp",
+  },
+  {
+    letter: "ز",
+    nameAr: "الزاي",
+    difficulty: "medium",
+    descriptionAr: "كوّن حلقة واضحة بين الإبهام والسبابة واترك بقية الأصابع مثنية.",
+    exampleAr: "زهرة",
+    asset: "/signs/sign-ar-zay.webp",
   },
   {
     letter: "س",
     nameAr: "السين",
     difficulty: "medium",
-    descriptionAr:
-      "افتح الكف واجعل الأصابع الأربعة متلاصقة مع الإبهام ظاهرًا على الحافة.",
+    descriptionAr: "افتح الكف واجعل الأصابع الأربعة متلاصقة مع الإبهام ظاهرًا على الحافة.",
     exampleAr: "سمك",
     asset: "/signs/sign-ar-seen.webp",
   },
@@ -95,8 +108,7 @@ export const signLetters: SignLetter[] = [
     letter: "ش",
     nameAr: "الشين",
     difficulty: "medium",
-    descriptionAr:
-      "افتح الكف مع انفراج خفيف بين الأصابع والإبهام بمحاذاة الحافة.",
+    descriptionAr: "افتح الكف مع انفراج خفيف بين الأصابع والإبهام بمحاذاة الحافة.",
     exampleAr: "شمس",
     asset: "/signs/sign-ar-sheen.webp",
   },
@@ -120,17 +132,23 @@ export const signLetters: SignLetter[] = [
     letter: "ط",
     nameAr: "الطاء",
     difficulty: "medium",
-    descriptionAr:
-      "ارفع إصبعًا عموديًا وأغلق حلقة مسطحة بين إصبع أفقي والإبهام.",
+    descriptionAr: "ارفع إصبعًا عموديًا وأغلق حلقة مسطحة بين إصبع أفقي والإبهام.",
     exampleAr: "طائر",
     asset: "/signs/sign-ar-taa-emphatic.webp",
   },
   {
+    letter: "ظ",
+    nameAr: "الظاء",
+    difficulty: "advanced",
+    descriptionAr: "ارفع السبابة عموديًا ومدّ الإبهام جانبًا مع ثني بقية الأصابع.",
+    exampleAr: "ظل",
+    asset: "/signs/sign-ar-zaa.webp",
+  },
+  {
     letter: "ع",
     nameAr: "العين",
-    difficulty: "medium",
-    descriptionAr:
-      "اثنِ الأصابع الأربعة معًا في رزمة أفقية وأخفِ الإبهام تحتها.",
+    difficulty: "advanced",
+    descriptionAr: "اثنِ الأصابع الأربعة معًا في رزمة أفقية وأخفِ الإبهام تحتها.",
     exampleAr: "عين",
     asset: "/signs/sign-ar-ain.webp",
   },
@@ -154,8 +172,7 @@ export const signLetters: SignLetter[] = [
     letter: "ق",
     nameAr: "القاف",
     difficulty: "advanced",
-    descriptionAr:
-      "كوّن حلقة صغيرة بين السبابة والإبهام فوق قبضة الأصابع الأخرى.",
+    descriptionAr: "كوّن حلقة صغيرة بين السبابة والإبهام فوق قبضة الأصابع الأخرى.",
     exampleAr: "قمر",
     asset: "/signs/sign-ar-qaaf.webp",
   },
@@ -163,8 +180,7 @@ export const signLetters: SignLetter[] = [
     letter: "ك",
     nameAr: "الكاف",
     difficulty: "advanced",
-    descriptionAr:
-      "ارفع الأصابع الأربعة متلاصقة واعبر بالإبهام قطريًا وسط الكف.",
+    descriptionAr: "ارفع الأصابع الأربعة متلاصقة واعبر بالإبهام قطريًا وسط الكف.",
     exampleAr: "كتاب",
     asset: "/signs/sign-ar-kaaf.webp",
   },
@@ -180,8 +196,7 @@ export const signLetters: SignLetter[] = [
     letter: "م",
     nameAr: "الميم",
     difficulty: "advanced",
-    descriptionAr:
-      "ارفع الخنصر وحده واعبر بالإبهام فوق الأصابع الثلاثة المطوية.",
+    descriptionAr: "ارفع الخنصر وحده واعبر بالإبهام فوق الأصابع الثلاثة المطوية.",
     exampleAr: "ماء",
     asset: "/signs/sign-ar-meem.webp",
   },
@@ -194,7 +209,7 @@ export const signLetters: SignLetter[] = [
     asset: "/signs/sign-ar-noon.webp",
   },
   {
-    letter: "هـ",
+    letter: "ه",
     nameAr: "الهاء",
     difficulty: "advanced",
     descriptionAr: "اجمع رؤوس الأصابع إلى الداخل عند نقطة مركزية أعلى الكف.",
@@ -213,18 +228,8 @@ export const signLetters: SignLetter[] = [
     letter: "ي",
     nameAr: "الياء",
     difficulty: "advanced",
-    descriptionAr:
-      "ارفع الخنصر عموديًا ومدّ الإبهام جانبًا مع طي الأصابع الوسطى.",
+    descriptionAr: "ارفع الخنصر عموديًا ومدّ الإبهام جانبًا مع طي الأصابع الوسطى.",
     exampleAr: "يد",
     asset: "/signs/sign-ar-yaa.webp",
-  },
-  {
-    letter: "ء",
-    nameAr: "الهمزة",
-    difficulty: "advanced",
-    descriptionAr:
-      "ارفع السبابة والوسطى مع انفراج خفيف وثبّت الإصبعين الآخرين.",
-    exampleAr: "سؤال",
-    asset: "/signs/sign-ar-hamza.webp",
   },
 ];

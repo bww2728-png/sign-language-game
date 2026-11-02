@@ -18,8 +18,9 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { signLetters, type SignLetter } from "@/lib/signLetters";
+import { CameraPractice } from "@/components/CameraPractice";
 
 type View = "home" | "play" | "levels" | "learn" | "achievements";
 type Difficulty = "easy" | "medium" | "advanced" | "all";
@@ -34,7 +35,8 @@ type Progress = {
 };
 type Feedback = "correct" | "wrong" | null;
 
-const progressKey = "sign-speaks-progress-v1";
+const progressKey = "sign-speaks-progress-v2";
+const legacyProgressKey = "sign-speaks-progress-v1";
 const settingsKey = "sign-speaks-sound-v1";
 const initialProgress: Progress = {
   completedLetters: 0,
@@ -75,23 +77,23 @@ const levels = [
     title: "أبطال الإشارة",
     subtitle: "حروف متقدمة",
     start: 15,
-    end: 19,
+    end: 20,
     starsRequired: 24,
     color: "orange",
   },
   {
     title: "قربنا نوصل",
-    subtitle: "الحروف الأخيرة",
-    start: 19,
-    end: 23,
+    subtitle: "أربع إشارات جديدة",
+    start: 20,
+    end: 24,
     starsRequired: 32,
     color: "pink",
   },
   {
     title: "أبجدية بطولية",
-    subtitle: "حروف إضافية",
-    start: 23,
-    end: 26,
+    subtitle: "الأربع إشارات الأخيرة",
+    start: 24,
+    end: 28,
     starsRequired: 40,
     color: "teal",
   },
@@ -113,21 +115,30 @@ const badgeRewards: Record<string, number> = {
   "star-collector": 35,
 };
 
+function nonNegativeInteger(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(0, Math.floor(value))
+    : 0;
+}
+
 function readProgress(): Progress {
   try {
-    const saved = window.localStorage.getItem(progressKey);
+    const saved =
+      window.localStorage.getItem(progressKey) ??
+      window.localStorage.getItem(legacyProgressKey);
     if (!saved) return initialProgress;
     const parsed = JSON.parse(saved) as Partial<Progress>;
+    const previousCompleted = nonNegativeInteger(parsed.completedLetters);
     return {
       completedLetters: Math.min(
         signLetters.length,
-        Math.max(0, parsed.completedLetters ?? 0)
+        Math.max(0, previousCompleted)
       ),
-      totalStars: Math.max(0, parsed.totalStars ?? 0),
-      correctAnswers: Math.max(0, parsed.correctAnswers ?? 0),
-      mistakes: Math.max(0, parsed.mistakes ?? 0),
-      currentStreak: Math.max(0, parsed.currentStreak ?? 0),
-      bestStreak: Math.max(0, parsed.bestStreak ?? 0),
+      totalStars: nonNegativeInteger(parsed.totalStars),
+      correctAnswers: nonNegativeInteger(parsed.correctAnswers),
+      mistakes: nonNegativeInteger(parsed.mistakes),
+      currentStreak: nonNegativeInteger(parsed.currentStreak),
+      bestStreak: nonNegativeInteger(parsed.bestStreak),
       unlockedBadges: Array.isArray(parsed.unlockedBadges)
         ? parsed.unlockedBadges.filter(
             (badge): badge is string => typeof badge === "string"
@@ -155,7 +166,7 @@ function LetterImage({
   return (
     <img
       className={`sign-image sign-image-${size}`}
-      src={letter.asset}
+      src={`${import.meta.env.BASE_URL}${letter.asset.replace(/^\//, "")}`}
       alt={`إشارة حرف ${letter.letter}، ${letter.nameAr}`}
       draggable={false}
     />
@@ -164,12 +175,8 @@ function LetterImage({
 
 export default function SignLanguageGame() {
   const [progress, setProgress] = useState<Progress>(readProgress);
-  const [view, setView] = useState<View>(
-    progress.completedLetters >= signLetters.length
-      ? "achievements"
-      : progress.completedLetters > 0
-        ? "play"
-        : "home"
+  const [view, setView] = useState<View>(() =>
+    progress.completedLetters >= signLetters.length ? "achievements" : "play"
   );
   const [soundEnabled, setSoundEnabled] = useState(() => {
     try {
@@ -179,12 +186,14 @@ export default function SignLanguageGame() {
     }
   });
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [wrongLetter, setWrongLetter] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("all");
   const [showHint, setShowHint] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [milestone, setMilestone] = useState("");
+  const feedbackTimeoutRef = useRef<number | null>(null);
 
   const roundIndex = progress.completedLetters;
   const target = signLetters[Math.min(roundIndex, signLetters.length - 1)];
@@ -203,13 +212,37 @@ export default function SignLanguageGame() {
       (roundIndex + 4) % signLetters.length,
       (roundIndex + 9) % signLetters.length,
     ];
-    return indices.map(index => signLetters[index]);
+    const candidates = indices.map(index => signLetters[index]);
+    const correctPosition = roundIndex % candidates.length;
+    return candidates.map(
+      (_, index) =>
+        candidates[
+          (index - correctPosition + candidates.length) % candidates.length
+        ]
+    );
   }, [roundIndex, target]);
 
   useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
   }, []);
+
+  useEffect(() => {
+    const syncFullscreenState = () =>
+      setIsFullScreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    return () =>
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimeoutRef.current !== null) {
+        window.clearTimeout(feedbackTimeoutRef.current);
+        feedbackTimeoutRef.current = null;
+      }
+    };
+  }, [view]);
 
   useEffect(() => {
     if (!message) return;
@@ -267,8 +300,13 @@ export default function SignLanguageGame() {
         currentStreak: 0,
       });
       setFeedback("wrong");
+      setWrongLetter(letter.letter);
       setMessage("قريب جدًا! جرّب مرة ثانية، أنت قادر.");
-      window.setTimeout(() => setFeedback(null), 1050);
+      feedbackTimeoutRef.current = window.setTimeout(() => {
+        setFeedback(null);
+        setWrongLetter(null);
+        feedbackTimeoutRef.current = null;
+      }, 1050);
       return;
     }
 
@@ -307,7 +345,7 @@ export default function SignLanguageGame() {
 
     if (completed === 1) setMilestone("أول إشارة لك! بداية جميلة.");
     else if (completed === 10) setMilestone("عشر إشارات! إنجاز رائع.");
-    else if (completed === 25) setMilestone("بقي حرف واحد وتكمل الأبجدية!");
+    else if (completed === 27) setMilestone("بقي حرف واحد وتكمل الأبجدية!");
     else if (nextStreak === 5) setMilestone("سلسلة خماسية! أنت نجم الإشارات.");
 
     if (newlyUnlocked.length > 0) {
@@ -316,13 +354,14 @@ export default function SignLanguageGame() {
       );
     }
 
-    window.setTimeout(() => {
+    feedbackTimeoutRef.current = window.setTimeout(() => {
       setFeedback(null);
       if (completed >= signLetters.length) {
         setView("achievements");
       } else {
         setView("play");
       }
+      feedbackTimeoutRef.current = null;
     }, 1050);
   }
 
@@ -368,13 +407,19 @@ export default function SignLanguageGame() {
     window.speechSynthesis.speak(utterance);
   }
 
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      void document.documentElement.requestFullscreen?.();
-      setIsFullScreen(true);
-    } else {
-      void document.exitFullscreen?.();
-      setIsFullScreen(false);
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        if (!document.documentElement.requestFullscreen) {
+          setMessage("ملء الشاشة غير مدعوم في هذا المتصفح.");
+          return;
+        }
+        await document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    } catch {
+      setMessage("تعذّر تفعيل ملء الشاشة. تحقّق من إعدادات المتصفح.");
     }
   }
 
@@ -483,7 +528,7 @@ export default function SignLanguageGame() {
                   </button>
                 </div>
                 <div className="home-trust">
-                  <span className="trust-dot" /> ٢٦ حرفًا — رحلة واحدة ممتعة
+                  <span className="trust-dot" /> ٢٨ حرفًا — رحلة واحدة ممتعة
                 </div>
               </div>
               <div className="hero-art" aria-label="إشارة حرف الألف">
@@ -522,7 +567,7 @@ export default function SignLanguageGame() {
                 <div>
                   <strong>
                     {progress.completedLetters}
-                    <small> / ٢٦</small>
+                    <small> / ٢٨</small>
                   </strong>
                   <span>حرف تعلّمته</span>
                 </div>
@@ -632,14 +677,18 @@ export default function SignLanguageGame() {
                 <span>التقدم</span>
                 <strong>
                   {roundIndex + 1}
-                  <small> / ٢٦</small>
+                  <small> / ٢٨</small>
                 </strong>
               </div>
             </div>
 
             <div
               className="progress-track"
-              aria-label={`أكملت ${progress.completedLetters} من ٢٦ حرفًا`}
+              aria-label={`أكملت ${progress.completedLetters} من ٢٨ حرفًا`}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={signLetters.length}
+              aria-valuenow={progress.completedLetters}
             >
               <div
                 className="progress-fill"
@@ -707,7 +756,7 @@ export default function SignLanguageGame() {
                   {choices.map((choice, index) => (
                     <button
                       key={choice.letter}
-                      className={`answer-card ${feedback === "correct" && choice.letter === target.letter ? "answer-correct" : ""} ${feedback === "wrong" && choice.letter !== target.letter ? "answer-wrong" : ""}`}
+                      className={`answer-card ${feedback === "correct" && choice.letter === target.letter ? "answer-correct" : ""} ${feedback === "wrong" && choice.letter === wrongLetter ? "answer-wrong" : ""}`}
                       type="button"
                       draggable={!feedback}
                       onClick={() => handleAnswer(choice)}
@@ -745,6 +794,17 @@ export default function SignLanguageGame() {
               </section>
             </div>
 
+            <CameraPractice
+              target={target}
+              disabled={feedback !== null}
+              onRecognized={letter => {
+                const recognized = signLetters.find(
+                  candidate => candidate.letter === letter
+                );
+                if (recognized) handleAnswer(recognized);
+              }}
+            />
+
             <div className="play-footer">
               <span>
                 <Star size={15} fill="currentColor" /> {progress.totalStars}{" "}
@@ -779,7 +839,7 @@ export default function SignLanguageGame() {
               <div className="level-summary">
                 <strong>
                   {progress.completedLetters}
-                  <small> / ٢٦</small>
+                  <small> / ٢٨</small>
                 </strong>
                 <span>حرفًا منجزًا</span>
               </div>
@@ -961,7 +1021,7 @@ export default function SignLanguageGame() {
                 </span>
                 <span>
                   <strong>يا بطل! أكملت الأبجدية كاملة.</strong>
-                  <small>٢٦ حرفًا تعلّمتها، و٢٦ خطوة جميلة قطعتها.</small>
+                  <small>٢٨ حرفًا تعلّمتها، و٢٨ خطوة جميلة قطعتها.</small>
                 </span>
                 <Sparkles className="finish-spark" size={24} />
               </div>
