@@ -8,8 +8,9 @@ createRoot(document.getElementById("root")!).render(<App />);
 // keeps working without a network connection.
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register(`${import.meta.env.BASE_URL}sw.js`)
-      .catch(() => undefined);
+    // Resolved against the document base so the worker is found from both
+    // "/" and "/404" when the app is deployed under a sub-path.
+    const swUrl = new URL("sw.js", document.baseURI).href;
+    navigator.serviceWorker.register(swUrl).catch(() => undefined);
   });
 }
