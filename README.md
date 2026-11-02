@@ -20,6 +20,14 @@ pnpm preview
 pnpm format
 ```
 
+## GitHub Pages
+
+The game is published at [https://bww2728-png.github.io/sign-language-game/](https://bww2728-png.github.io/sign-language-game/).
+
+Every push to `main` runs the project checks, builds `dist`, and deploys the
+static site through GitHub Actions. The workflow can also be started manually
+from the repository's Actions tab.
+
 ## Structure
 
 ```text
